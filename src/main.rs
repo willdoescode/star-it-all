@@ -6,10 +6,10 @@ use serde::Deserialize;
 use std::path::PathBuf;
 use futures::future::try_join_all;
 
-type Users = Vec<User>;
+type Repos = Vec<Repo>;
 
 #[derive(Deserialize, Debug)]
-struct User {
+struct Repo {
 	name: String,
 	full_name: String,
 	owner: Owner,
@@ -95,7 +95,7 @@ async fn get_user_info(user: &str, token: String, delete: bool) -> anyhow::Resul
 }
 
 async fn get_users(client: &reqwest::Client, user: &str, token: &str, page: i32)
-	-> anyhow::Result<Users>
+	-> anyhow::Result<Repos>
 {
 	Ok(
 		client.get(format!("https://api.github.com/users/{}/repos?page={}", user, page))
@@ -103,7 +103,7 @@ async fn get_users(client: &reqwest::Client, user: &str, token: &str, page: i32)
 		.header("User-Agent", "terminal")
 		.send()
 		.await?
-		.json::<Users>()
+		.json::<Repos>()
 		.await?
 	)
 }
