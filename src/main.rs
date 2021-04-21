@@ -20,11 +20,11 @@ async fn main() -> anyhow::Result<()> {
 		}
 	};
 
-	get_user_info(cli.user.trim().to_string(), token).await?;
+	get_user_info(cli.user.trim().to_string(), token, cli.delete).await?;
 	Ok(())
 }
 
-async fn get_user_info(user: String, token: String) -> anyhow::Result<()> {
+async fn get_user_info(user: String, token: String, delete: bool) -> anyhow::Result<()> {
 	let client = reqwest::Client::new();
 	let mut reqs = Vec::new();
 	for page in 1..31 {
@@ -33,11 +33,12 @@ async fn get_user_info(user: String, token: String) -> anyhow::Result<()> {
 	}
 
 	let results = try_join_all(reqs).await?;
+	println!("{:?}", results);
 
 	let mut reqs = Vec::new();
 	for res in results {
 		for u in res {
-			let star = star(&client, u.full_name, &user, &token);
+			let star = star(&client, u.full_name, &token, delete);
 			reqs.push(star);
 		}
 	}
@@ -62,11 +63,23 @@ async fn get_users(client: &reqwest::Client, user: &String, token: &String, page
 	)
 }
 
-async fn star(client: &reqwest::Client, repo: String, username: &String, token: &String) -> anyhow::Result<reqwest::Response> {
+async fn star(client: &reqwest::Client, repo: String, token: &String, delete: bool)
+	-> anyhow::Result<reqwest::Response>
+{
 	Ok(
-		client.put(format!("https://api.github.com/user/starred/{}/{}", username, repo))
-			.header("Authorization", &format!("token {}", token)[..])
-			.send()
-			.await?
+		if !delete {
+			client.put(format!("https://api.github.com/user/starred/{}", repo))
+				.header("Accept", "application/vnd.github.v3+json")
+				.header("Authorization", &format!("token {}", token)[..])
+				.header("User-Agent", "terminal")
+				.send()
+				.await?
+		} else {
+			client.delete(format!("https://api.github.com/user/starred/{}", repo))
+				.header("Authorization", &format!("token {}", token)[..])
+				.header("User-Agent", "terminal")
+				.send()
+				.await?
+		}
 	)
 }
