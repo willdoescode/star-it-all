@@ -41,13 +41,37 @@ async fn get_user_info(user: &str, token: String, delete: bool) -> anyhow::Resul
 	for res in results {
 		for u in res {
 			let star = star(&client, u.full_name, &token, delete);
+			println!(
+				"{}: {}https://github.com/{}/{}{}",
+				if delete {"Removed Star"} else {"Starred"},
+				termion::color::Fg(termion::color::LightGreen),
+				user,
+				u.name,
+				termion::color::Fg(termion::color::Reset)
+			);
+			println!(
+				"  Language: {}{}{}",
+				termion::color::Fg(termion::color::Yellow),
+				if u.language.is_some() {u.language.unwrap()} else {"None".to_string()},
+				termion::color::Fg(termion::color::Reset),
+			);
+			println!(
+				"  Stargazers: {}{}{}",
+				termion::color::Fg(termion::color::Red),
+			  u.stargazers_count + if delete {-1} else {1},
+				termion::color::Fg(termion::color::Reset)
+			);
+			println!(
+				"  Watchers: {}{}{}\n",
+				termion::color::Fg(termion::color::Green),
+				u.watchers_count,
+				termion::color::Fg(termion::color::Reset)
+			);
 			reqs.push(star);
 		}
 	}
 
-	for r in try_join_all(reqs).await? {
-		println!("{}: {}", if delete {"Removed Star"} else {"Starred"}, &r.url().path()["/user/starred/".len()..]);
-	}
+	try_join_all(reqs).await?;
 
 	Ok(())
 }

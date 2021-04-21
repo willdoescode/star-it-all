@@ -1,7 +1,7 @@
 use clap::{AppSettings, Clap};
 
 #[derive(Clap, Debug)]
-#[clap(version = "v0.1.2", author = "William Lane <williamlane923@gmail.com>")]
+#[clap(version = "v0.1.3", author = "William Lane <williamlane923@gmail.com>")]
 #[clap(setting = AppSettings::ColoredHelp)]
 pub struct Cli {
 	/// Enter your token here or add it to ~/.staritrc

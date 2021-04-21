@@ -1,7 +1,7 @@
 [package]
 name = "star-it-all"
 description = "A utility to star every repo from a user"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2018"
 authors = ["William Lane <williamlane923@gmail.com>"]
 license = "MIT"
@@ -14,3 +14,4 @@ serde_json = "1.0.64"
 tokio = { version = "1.5.0", features = ["full"] }
 clap = "3.0.0-beta.2"
 futures = "0.3.14"
+termion = "1.5.6"
