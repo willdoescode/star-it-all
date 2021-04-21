@@ -4,6 +4,7 @@ use cli::Cli;
 use json::Users;
 use clap::Clap;
 use tokio::fs;
+use futures::future::try_join_all;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -19,21 +20,62 @@ async fn main() -> anyhow::Result<()> {
 		}
 	};
 
-	get_user_info(cli.user, token, 1).await?;
+	// let client = reqwest::Client::new();
+	// let w = client.get("https://api.github.com/users/KaiDevrim/repos?page=1")
+	// 	.header("Authorization", &format!("token {}", token)[..])
+	// 	.header("User-Agent", "terminal")
+	// 	.send()
+	// 	.await?
+	// 	.text()
+	// 	.await?;
+	// println!("{}", w);
+
+	get_user_info(cli.user, token).await?;
 	Ok(())
 }
 
-async fn get_user_info(user: String, token: String, page: i32) -> anyhow::Result<()> {
+async fn get_user_info(user: String, token: String) -> anyhow::Result<()> {
 	let client = reqwest::Client::new();
-	let x = client.get(format!("https://api.github.com/users/{}/repos?page={}", user, page))
+	let mut reqs = Vec::new();
+	for page in 1..31 {
+		let user = get_users(&client, &user, &token, page);
+		reqs.push(user);
+	}
+
+	let results = try_join_all(reqs).await?;
+
+	let mut reqs = Vec::new();
+	for res in results {
+		for user in res {
+			let star = star(&client, user.full_name, &token);
+			reqs.push(star);
+		}
+	}
+
+	try_join_all(reqs).await?;
+
+	Ok(())
+}
+
+async fn get_users(client: &reqwest::Client, user: &String, token: &String, page: i32)
+	-> anyhow::Result<Users>
+{
+	Ok(
+		client.get(format!("https://api.github.com/users/{}/repos?page={}", user, page))
 		.header("Authorization", &format!("token {}", token)[..])
 		.header("User-Agent", "terminal")
 		.send()
 		.await?
 		.json::<Users>()
-		.await?;
+		.await?
+	)
+}
 
-	println!("{:?}", x);
+async fn star(client: &reqwest::Client, repo: String, token: &String) -> anyhow::Result<()> {
+	client.put(format!("https://api.github.com/user/starred/{}", repo))
+		.header("Authorization", &format!("token {}", token)[..])
+		.send()
+		.await?;
 
 	Ok(())
 }

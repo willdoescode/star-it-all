@@ -7,11 +7,11 @@ pub struct User {
 	id: i64,
 	node_id: String,
 	name: String,
-	full_name: String,
+	pub full_name: String,
 	private: bool,
 	owner: Owner,
 	html_url: String,
-	description: Option<String>,
+	description: serde_json::Value,
 	fork: bool,
 	url: String,
 	forks_url: String,
@@ -57,7 +57,7 @@ pub struct User {
 	ssh_url: String,
 	clone_url: String,
 	svn_url: String,
-	homepage: Option<String>,
+	homepage: serde_json::Value,
 	size: i64,
 	stargazers_count: i64,
 	watchers_count: i64,
@@ -68,25 +68,16 @@ pub struct User {
 	has_wiki: bool,
 	has_pages: bool,
 	forks_count: i64,
-	mirror_url: Option<serde_json::Value>,
+	mirror_url: serde_json::Value,
 	archived: bool,
 	disabled: bool,
 	open_issues_count: i64,
-	license: Option<License>,
+	license: serde_json::Value,
 	forks: i64,
 	open_issues: i64,
 	watchers: i64,
-	default_branch: DefaultBranch,
+	default_branch: serde_json::Value,
 	permissions: Permissions,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct License {
-	key: String,
-	name: String,
-	spdx_id: String,
-	url: String,
-	node_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -96,7 +87,7 @@ pub struct Owner {
 	node_id: String,
 	avatar_url: String,
 	gravatar_id: String,
-	url: String,
+	url: serde_json::Value,
 	html_url: String,
 	followers_url: String,
 	following_url: String,
@@ -118,17 +109,6 @@ pub struct Permissions {
 	push: bool,
 	pull: bool,
 }
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum DefaultBranch {
-	#[serde(rename = "main")]
-	Main,
-	#[serde(rename = "master")]
-	Master,
-	#[serde(rename = "trunk")]
-	Trunk,
-}
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Type {
