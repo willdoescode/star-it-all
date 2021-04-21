@@ -1,11 +1,29 @@
 mod cli;
-mod json;
 use std::fs;
 use cli::Cli;
 use clap::Clap;
-use json::Users;
+use serde::Deserialize;
 use std::path::PathBuf;
 use futures::future::try_join_all;
+
+type Users = Vec<User>;
+
+#[derive(Deserialize, Debug)]
+struct User {
+	name: String,
+	full_name: String,
+	owner: Owner,
+	url: String,
+	git_url: String,
+	stargazers_count: i64,
+	watchers_count: i64,
+	language: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct Owner {
+	login: String,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
