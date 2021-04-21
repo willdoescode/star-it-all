@@ -27,3 +27,5 @@ OPTIONS:
     -t, --token <token>    Enter your token here or add it to ~/.staritrc
     -u, --user <user>      Username for user to star all repos for
 ```
+
+![showcase](showcase.png)
