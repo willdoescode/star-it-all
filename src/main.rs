@@ -36,7 +36,6 @@ async fn get_user_info(user: &str, token: String, delete: bool) -> anyhow::Resul
 	}
 
 	let results = try_join_all(reqs).await?;
-	println!("{:?}", results);
 
 	let mut reqs = Vec::new();
 	for res in results {
@@ -46,8 +45,9 @@ async fn get_user_info(user: &str, token: String, delete: bool) -> anyhow::Resul
 		}
 	}
 
-	let x = try_join_all(reqs).await?;
-	println!("{:?}", x);
+	for r in try_join_all(reqs).await? {
+		println!("{}: {}", if delete {"Removed Star"} else {"Starred"}, &r.url().path()["/user/starred/".len()..]);
+	}
 
 	Ok(())
 }
