@@ -5,6 +5,7 @@ use clap::Clap;
 use serde::Deserialize;
 use std::path::PathBuf;
 use futures::future::try_join_all;
+use ansi_term::Color::{Green, Red, Yellow, Purple};
 
 type Repos = Vec<Repo>;
 
@@ -60,30 +61,21 @@ async fn get_user_info(user: &str, token: String, delete: bool) -> anyhow::Resul
 		for u in res {
 			let star = star(&client, u.full_name, &token, delete);
 			println!(
-				"{}: {}https://github.com/{}/{}{}",
+				"{}: {}",
 				if delete {"Removed Star"} else {"Starred"},
-				termion::color::Fg(termion::color::LightGreen),
-				user,
-				u.name,
-				termion::color::Fg(termion::color::Reset)
+				Green.paint(format!("https://github.com/{}/{}", user, u.name)),
 			);
 			println!(
-				"  Language: {}{}{}",
-				termion::color::Fg(termion::color::Yellow),
-				if u.language.is_some() {u.language.unwrap()} else {"None".to_string()},
-				termion::color::Fg(termion::color::Reset),
+				"  Language: {}",
+				Yellow.paint(if u.language.is_some() {u.language.unwrap()} else {"None".to_string()}),
 			);
 			println!(
-				"  Stargazers: {}{}{}",
-				termion::color::Fg(termion::color::Red),
-			  u.stargazers_count + if delete {-1} else {1},
-				termion::color::Fg(termion::color::Reset)
+				"  Stargazers: {}",
+				Red.paint(format!("{}", u.stargazers_count + if delete {-1} else {1})),
 			);
 			println!(
-				"  Watchers: {}{}{}\n",
-				termion::color::Fg(termion::color::Green),
-				u.watchers_count,
-				termion::color::Fg(termion::color::Reset)
+				"  Watchers: {}\n",
+				Purple.paint(format!("{}", u.watchers_count))
 			);
 			reqs.push(star);
 		}
