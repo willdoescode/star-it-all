@@ -1,8 +1,10 @@
 [package]
 name = "star-it-all"
+description = "A utility to star every repo from a user"
 version = "0.1.0"
 edition = "2018"
 authors = ["William Lane <williamlane923@gmail.com>"]
+license = "MIT"
 
 [dependencies]
 anyhow = "1.0.40"
