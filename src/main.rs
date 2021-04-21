@@ -20,17 +20,7 @@ async fn main() -> anyhow::Result<()> {
 		}
 	};
 
-	// let client = reqwest::Client::new();
-	// let w = client.get("https://api.github.com/users/KaiDevrim/repos?page=1")
-	// 	.header("Authorization", &format!("token {}", token)[..])
-	// 	.header("User-Agent", "terminal")
-	// 	.send()
-	// 	.await?
-	// 	.text()
-	// 	.await?;
-	// println!("{}", w);
-
-	get_user_info(cli.user, token).await?;
+	get_user_info(cli.user.trim().to_string(), token).await?;
 	Ok(())
 }
 
@@ -46,13 +36,14 @@ async fn get_user_info(user: String, token: String) -> anyhow::Result<()> {
 
 	let mut reqs = Vec::new();
 	for res in results {
-		for user in res {
-			let star = star(&client, user.full_name, &token);
+		for u in res {
+			let star = star(&client, u.full_name, &user, &token);
 			reqs.push(star);
 		}
 	}
 
-	try_join_all(reqs).await?;
+	let x = try_join_all(reqs).await?;
+	println!("{:?}", x);
 
 	Ok(())
 }
@@ -71,11 +62,11 @@ async fn get_users(client: &reqwest::Client, user: &String, token: &String, page
 	)
 }
 
-async fn star(client: &reqwest::Client, repo: String, token: &String) -> anyhow::Result<()> {
-	client.put(format!("https://api.github.com/user/starred/{}", repo))
-		.header("Authorization", &format!("token {}", token)[..])
-		.send()
-		.await?;
-
-	Ok(())
+async fn star(client: &reqwest::Client, repo: String, username: &String, token: &String) -> anyhow::Result<reqwest::Response> {
+	Ok(
+		client.put(format!("https://api.github.com/user/starred/{}/{}", username, repo))
+			.header("Authorization", &format!("token {}", token)[..])
+			.send()
+			.await?
+	)
 }

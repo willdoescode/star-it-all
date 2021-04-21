@@ -9,7 +9,7 @@ pub struct User {
 	name: String,
 	pub full_name: String,
 	private: bool,
-	owner: Owner,
+	pub owner: Owner,
 	html_url: String,
 	description: serde_json::Value,
 	fork: bool,
@@ -82,7 +82,7 @@ pub struct User {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Owner {
-	login: String,
+	pub login: String,
 	id: i64,
 	node_id: String,
 	avatar_url: String,
