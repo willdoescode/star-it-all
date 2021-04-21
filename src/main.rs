@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
 			}
 		}
 	};
-
+	get_user_info("aidenybai", token, cli.delete).await?;
 	get_user_info(cli.user.trim().to_string(), token, cli.delete).await?;
 	Ok(())
 }
